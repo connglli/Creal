@@ -29,6 +29,7 @@ class VarValue(Enum):
 
 class Var:
     """Variable"""
+    tag_id:int              # Id of its tag
     var_name:str            # variable name
     var_type:str            # variable type as string
     var_value:int           # value
@@ -155,6 +156,7 @@ class Synthesizer:
             new_var.var_name = tag_var_name
             new_var.var_type = strip_type_str(tag_type_str)
             new_var.is_global = scope_curr_id == 0
+            new_var.tag_id = tag_id
 
             new_tag = Tag()
             new_tag.tag_str = tag_str
@@ -492,7 +494,7 @@ return v0; \
                 output_str += f'+(({VarType.to_str(func_return_type)})({env.var_name})-({env_value_cast}))'
         return output_str, output
 
-    def replace_valuetag_with_func(self, tag_id:int, tgt_func_idx:int):
+    def replace_valuetag_with_func(self, tag_id:int, tgt_func_idx:int, alive_tags:list):
         """
         Replace a ValueTag with the selected function call
         """
@@ -501,7 +503,7 @@ return v0; \
         if self.tags[tag_id].tag_var.is_stable:
             stable_env_vars.append(self.tags[tag_id].tag_var)
         for env in self.tags[tag_id].tag_envs:
-            if env.is_stable:
+            if env.tag_id in alive_tags and env.is_stable:
                 stable_env_vars.append(env)
 
         # randomly select an io pair of the tgt_func
@@ -587,7 +589,7 @@ return v0; \
                     if self.functionDB[tgt_func_idx].has_io:
                         break
                 # replace the ValueTag with the selected function
-                self.replace_valuetag_with_func(tag_id, tgt_func_idx)
+                self.replace_valuetag_with_func(tag_id, tgt_func_idx, self.alive_tags)
                 replaced_valuetag.append(tag_id)
                 inserted_func_ids.append(tgt_func_idx)
             # self.remove_valuetag() # we don't do this now because this removal is too costly and it has no impact on the semantics of the synthesized program.
