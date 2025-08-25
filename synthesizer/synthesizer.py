@@ -507,6 +507,7 @@ return v0; \
                 stable_env_vars.append(env)
 
         # randomly select an io pair of the tgt_func
+        print(datetime.now().strftime("%d/%m/%Y %H:%M:%S"), f"using function (idx={tgt_func_idx}): {self.functionDB[tgt_func_idx].call_name}")
         func_inp_list, func_out = random.choice(self.functionDB[tgt_func_idx].io_list)
         new_input_str = self.synthesize_input(stable_env_vars, func_inp_list, self.functionDB[tgt_func_idx].args_type)
         new_output_str, new_output = self.synthesize_output(stable_env_vars, func_out, self.functionDB[tgt_func_idx].return_type)

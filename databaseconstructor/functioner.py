@@ -25,6 +25,10 @@ class Function:
             return
         if 'parameter_types' in func_json:
             self.args_type = VarType.from_list(func_json['parameter_types'])
+            for ty in self.args_type:
+                if VarType.is_unsupport_type(ty):
+                    print(f"skipped function {self.call_name} due to unsupported array types")
+                    return
         else:
             return
         if 'return_type' in func_json:

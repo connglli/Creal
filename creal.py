@@ -391,6 +391,8 @@ def run_one(compilers:list[str], dst_dir:Path, SYNER:Synthesizer) -> Path | None
     except Exception as e:
         print('SynthesizerError:', e if e else '<no-output>')
         os.remove(src)
+        import traceback
+        traceback.print_exc()
         return 0
 
     print_green(f'Synthesizing done! Programs saved as {src.replace(".c", "_syn*.c")}')

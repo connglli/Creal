@@ -16,6 +16,7 @@ class VarType(Enum):
     UCHAR   =   auto()
     VOID    =   auto()
     STRUCT  =   auto()
+    ARRAY   =   auto()
     '''pointers'''
     PTR_INT8    =   auto()
     PTR_UINT8   =   auto()
@@ -38,6 +39,9 @@ class VarType(Enum):
         if "const" in type_str:
             Warning(f"{type_str} found. We now only ignore the \"const\".")
             type_str = type_str.replace("const", "").strip()
+        if "[" in type_str and "]" in type_str:
+            Warning(f"array types are not supported yet, skip: {type_str}")
+            return VarType.ARRAY # early return
         for map_type in VAR_MAP:
             for map_type_str in map_type.type_str_list:
                 if map_type_str == type_str:
@@ -96,8 +100,8 @@ class VarType(Enum):
     
     @staticmethod
     def is_unsupport_type(var_type) -> bool:
-        """Now only struct is unsupported"""
-        return var_type == VarType.STRUCT# or var_type == VarType.VOID
+        """Now only struct and array are unsupported"""
+        return var_type == VarType.STRUCT or var_type == VarType.ARRAY # or var_type == VarType.VOID
     
     @staticmethod
     def get_random_type():
@@ -110,6 +114,7 @@ class VarType(Enum):
     @staticmethod
     def get_ctypes(var_type, var_value=None):
         """Get a ctype object"""
+        assert not VarType.is_unsupport_type(var_type), "Unsupported types are given"
         for map_type in VAR_MAP:
             if var_type == map_type.vartype:
                 if var_value == None:
@@ -121,6 +126,7 @@ class VarType(Enum):
     @staticmethod
     def get_format(var_type):
         """Get the printf format for the type"""
+        assert not VarType.is_unsupport_type(var_type), "Unsupported types are given"
         for map_type in VAR_MAP:
             if var_type == map_type.vartype:
                 return map_type.fmt
